@@ -27,7 +27,9 @@ OTHER_FILES += qml/kladi.qml \
     rpm/kladi.spec \
 	kladi.png \
     kladi.desktop \
-    qml/pages/SettingsPage.qml \
     qml/components/Messagebox.qml \
-    qml/pages/ShowPaste.qml
+    qml/pages/ShowPaste.qml \
+    qml/pages/EditPaste.qml \
+    qml/pages/PasteInfo.qml \
+    qml/pages/LoginPage.qml
 

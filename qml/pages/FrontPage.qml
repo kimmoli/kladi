@@ -26,19 +26,39 @@ Page
             }
             MenuItem
             {
-                text: "Settings"
-                onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
+                text: "Login"
+                onClicked: pageStack.push(Qt.resolvedUrl("LoginPage.qml"))
             }
             MenuItem
             {
                 text: "New paste from clipboard"
-                onClicked: pastes.newPaste("Pasted from Jolla", Clipboard.text, "text", "1H", "0")
+                onClicked:
+                {
+                    processing = true
+                    pastes.newPaste("Pasted from Jolla", Clipboard.text, "text", "1M", "1")
+                }
             }
             MenuItem
             {
                 text: "New paste..."
-                onClicked: pastes.newPaste("testi", "Testidataa-tekstiä", "text", "1H", "0")
+                onClicked:
+                {
+                    var editDialog = pageStack.push(Qt.resolvedUrl("EditPaste.qml"))
+                    editDialog.accepted.connect(function()
+                    {
+                        processing = true
+                        pastes.newPaste(editDialog.pasteTitle, editDialog.code, editDialog.format, editDialog.expire, editDialog.privacy)
+                    })
+                }
             }
+        }
+
+        Label
+        {
+            id: noData
+            anchors.centerIn: parent
+            text: "No pastes, or not logged in"
+            visible: dataReady && myPastes.count == 0
         }
 
         SilicaListView
@@ -53,6 +73,15 @@ Page
 
             delegate: ListItem
             {
+                function remove()
+                {
+                    remorseAction("Deleting", function()
+                    {
+                        processing = true
+                        pastes.deletePaste(paste_key)
+                    })
+                }
+
                 id: listItem
                 menu: ContextMenu
                 {
@@ -68,17 +97,24 @@ Page
                     }
                     MenuItem
                     {
-                        text: "Delete (no remorse, no undo)"
+                        text: "Delete (no undo)"
                         onClicked:
                         {
-                            dataReady = false
-                            pastes.deletePaste(paste_key)
+                            remove()
                         }
                     }
                 }
 
                 onClicked:
                 {
+                    currentPasteTitle = paste_title.length > 0 ? paste_title : "Untitled"
+                    currentPasteSize = paste_size
+                    currentPasteFormat = paste_format_long
+                    currentPasteDate = Qt.formatDateTime(new Date(paste_date * 1000))
+                    currentPasteExpire = paste_expire_date == 0 ? "Never" : Qt.formatDateTime(new Date(paste_expire_date * 1000))
+                    currentPastePrivacy = paste_private
+
+                    processing = true
                     pastes.fetchRaw(paste_key)
                 }
 
@@ -108,9 +144,16 @@ Page
                     Image
                     {
                         id: privImg
-                        visible: paste_private == 2
                         scale: 0.75
-                        source: "image://theme/icon-m-device-lock"
+                        source:
+                        {
+                            if (paste_private == 0)
+                                return "image://theme/icon-m-region"
+                            if (paste_private == 1)
+                                return "image://theme/icon-m-remote-security"
+                            if (paste_private == 2)
+                                return "image://theme/icon-m-device-lock"
+                        }
                     }
                 }
             }

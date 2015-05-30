@@ -3,29 +3,44 @@ import Sailfish.Silica 1.0
 
 Page
 {
-    id: page
+    id: showPastePage
 
     SilicaFlickable
     {
+        id: flick
         anchors.fill: parent
 
-        contentHeight: column.height
+        contentHeight: area.height
+        VerticalScrollDecorator { flickable: flick }
 
-        Column
+        PullDownMenu
         {
-            id: column
-
-            width: page.width
-            spacing: Theme.paddingLarge
-            PageHeader
+            MenuItem
             {
-                title: "plop"
+                text: "Copy to clipboard"
+                onClicked: Clipboard.text = area.text
             }
+        }
 
-            Label
-            {
-                text: pastes.raw()
-            }
+        PageHeader
+        {
+            id: dh
+            title: currentPasteTitle
+        }
+
+        TextArea
+        {
+            id: area
+            width: showPastePage.width
+            height: showPastePage.height - dh.height
+
+            anchors.top: dh.bottom
+
+            selectionMode: TextEdit.SelectCharacters
+            readOnly: true
+            background: null
+
+            text: pastes.raw()
         }
     }
 }

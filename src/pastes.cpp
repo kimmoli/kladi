@@ -160,7 +160,7 @@ void Pastes::requestUserKey(QString username, QString password)
         return;
 
     QNetworkRequest req;
-    req.setUrl(QUrl(_apiUrl));
+    req.setUrl(QUrl("http://pastebin.com/api/api_login.php"));
 
     QString datas("api_dev_key=" + _develKey +
                   "&api_user_name=" + QUrl::toPercentEncoding(username) +
