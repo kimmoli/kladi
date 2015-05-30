@@ -20,7 +20,7 @@
 
 int main(int argc, char *argv[])
 {
-    qmlRegisterType<Pastes>("kladi.Pastes", 1, 0, "Pastes");
+    qmlRegisterType<Pastes>("harbour.kladi.Pastes", 1, 0, "Pastes");
 
     QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
     QScopedPointer<QQuickView> view(SailfishApp::createView());

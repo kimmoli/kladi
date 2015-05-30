@@ -10,7 +10,7 @@ CoverBackground
     CoverPlaceholder
     {
         text: "Kladi"
-        icon.source: "/usr/share/icons/hicolor/86x86/apps/kladi.png"
+        icon.source: "/usr/share/icons/hicolor/86x86/apps/harbour-kladi.png"
     }
 }
 

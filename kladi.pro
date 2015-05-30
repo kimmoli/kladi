@@ -2,7 +2,7 @@
 # Project kladi, Pastebin application
 #
 
-TARGET = kladi
+TARGET = harbour-kladi
 
 CONFIG += sailfishapp
 
@@ -25,8 +25,8 @@ OTHER_FILES += qml/kladi.qml \
     qml/pages/FrontPage.qml \
     qml/pages/AboutPage.qml \
     rpm/kladi.spec \
-	kladi.png \
-    kladi.desktop \
+	harbour-kladi.png \
+    harbour-kladi.desktop \
     qml/components/Messagebox.qml \
     qml/pages/ShowPaste.qml \
     qml/pages/EditPaste.qml \

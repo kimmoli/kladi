@@ -22,7 +22,7 @@ Page
                                           { "version": Qt.application.version,
                                               "year": "2014",
                                               "name": "Pastebin application",
-                                              "imagelocation": "/usr/share/icons/hicolor/86x86/apps/kladi.png"} )
+                                              "imagelocation": "/usr/share/icons/hicolor/86x86/apps/harbour-kladi.png"} )
             }
             MenuItem
             {
