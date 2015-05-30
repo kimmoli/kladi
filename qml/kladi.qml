@@ -6,6 +6,7 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import QtQuick.XmlListModel 2.0
 import kladi.Pastes 1.0
+import "components"
 
 ApplicationWindow
 {
@@ -21,7 +22,9 @@ ApplicationWindow
         id: pastes
 
         Component.onCompleted:
-            pastes.requestPastes()
+        {
+            pastes.fetchAll()
+        }
 
         onPastesChanged:
         {
@@ -30,6 +33,37 @@ ApplicationWindow
             myPastes.xml = pastes.xml()
             myPastes.reload()
         }
+
+        onRawPasteChanged:
+        {
+            pageStack.push(Qt.resolvedUrl("pages/ShowPaste.qml"))
+        }
+
+        onError:
+        {
+            messagebox.showError(pastes.msg())
+        }
+
+        onSuccess:
+        {
+            messagebox.showMessage(pastes.msg())
+            myPastes.xml = ""
+            dataReady = false
+            pastes.fetchAll()
+        }
+    }
+
+    Messagebox
+    {
+        id: messagebox
+    }
+
+    BusyIndicator
+    {
+        id: isBusy
+        size: BusyIndicatorSize.Large
+        anchors.centerIn: parent
+        running: !dataReady
     }
 
     XmlListModel
@@ -56,7 +90,6 @@ ApplicationWindow
                 dataReady = true
         }
     }
-
 }
 
 

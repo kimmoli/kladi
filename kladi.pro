@@ -16,11 +16,9 @@ message($${DEFINES})
 #INCLUDEPATH += src
 
 SOURCES += src/kladi.cpp \
-	src/pastes.cpp \
-    src/pastebinapi.cpp
+	src/pastes.cpp
 	
-HEADERS += src/pastes.h \
-    src/pastebinapi.h
+HEADERS += src/pastes.h
 
 OTHER_FILES += qml/kladi.qml \
     qml/cover/CoverPage.qml \
@@ -29,5 +27,7 @@ OTHER_FILES += qml/kladi.qml \
     rpm/kladi.spec \
 	kladi.png \
     kladi.desktop \
-    qml/pages/SettingsPage.qml
+    qml/pages/SettingsPage.qml \
+    qml/components/Messagebox.qml \
+    qml/pages/ShowPaste.qml
 

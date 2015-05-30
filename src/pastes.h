@@ -7,8 +7,11 @@
 #include <QObject>
 #include <QDebug>
 #include <QSettings>
-
-#include "pastebinapi.h"
+#include <QNetworkRequest>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QUrl>
+#include <QUrlQuery>
 
 class Pastes : public QObject
 {
@@ -21,20 +24,46 @@ public:
     Q_INVOKABLE QVariant getSetting(QString name, QVariant defaultValue);
     Q_INVOKABLE void setSetting(QString name, QVariant value);
 
-    Q_INVOKABLE void test();
+    Q_INVOKABLE void newPaste(QString name, QString code, QString format="text", QString expire="N", QString priv="0");
+    Q_INVOKABLE void fetchAll();
+    Q_INVOKABLE void deletePaste(QString key);
+    Q_INVOKABLE void requestUserKey(QString username, QString password);
+    Q_INVOKABLE void fetchRaw(QString key);
 
-    Q_INVOKABLE void requestPastes();
-    Q_INVOKABLE QString xml();
+    Q_INVOKABLE QString xml() { return _pastes; }
+    Q_INVOKABLE QString raw() { return _rawPaste; }
+    Q_INVOKABLE QString msg() { return _message; }
 
-public slots:
-    void processData(QString data);
+    enum Request
+    {
+        None,
+        New,
+        List,
+        Delete,
+        UserKey,
+        Raw
+    };
 
 signals:
     void pastesChanged();
+    void error();
+    void rawPasteChanged();
+    void success();
+
+private slots:
+    void finished(QNetworkReply *reply);
+    void errorReply(QNetworkReply::NetworkError error);
 
 private:
-    PastebinApi *pbApi;
     QString _pastes;
+    QString _apiUrl;
+    QString _userKey;
+    QString _develKey;
+    QNetworkAccessManager *_manager;
+    QString _rawPaste;
+    QString _message;
+    Request _lastRequest;
+
 };
 
 

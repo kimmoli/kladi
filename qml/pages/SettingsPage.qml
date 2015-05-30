@@ -5,11 +5,6 @@ Page
 {
     id: page
 
-    Component.onCompleted:
-    {
-        ti.text = pastes.getSetting("userkey", "");
-    }
-
     SilicaFlickable
     {
         anchors.fill: parent
@@ -28,15 +23,52 @@ Page
             }
             TextField
             {
-                id: ti
+                id: uname
                 width: parent.width
                 focus: true
-                placeholderText: qsTr("Enter user key")
+                label: "Username"
+                placeholderText: qsTr("Enter username")
                 EnterKey.iconSource: "image://theme/icon-m-enter-accept"
                 EnterKey.onClicked:
                 {
-                    pastes.setSetting("userkey", ti.text)
+                    upass.focus = true
                 }
+            }
+            TextField
+            {
+                id: upass
+                width: parent.width
+                focus: true
+                label: "Password"
+                placeholderText: qsTr("Enter password")
+                EnterKey.iconSource: "image://theme/icon-m-enter-accept"
+                EnterKey.onClicked:
+                {
+                    uname.focus = true
+                }
+            }
+
+            Button
+            {
+                text: "generate"
+                enabled: upass.text.length > 0 && uname.text.length > 0
+                anchors.horizontalCenter: parent.horizontalCenter
+                onClicked:
+                {
+                    pastes.requestUserKey(uname.text, upass.text)
+                    pageStack.navigateBack()
+                }
+            }
+
+            SectionHeader
+            {
+                text: "Current user key"
+            }
+
+            Label
+            {
+                text: pastes.getSetting("userkey", "")
+                anchors.horizontalCenter: parent.horizontalCenter
             }
         }
     }

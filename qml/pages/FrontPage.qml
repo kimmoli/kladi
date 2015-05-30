@@ -9,14 +9,6 @@ Page
 {
     id: page
 
-    BusyIndicator
-    {
-        id: isBusy
-        size: BusyIndicatorSize.Large
-        anchors.centerIn: parent
-        running: !dataReady
-    }
-
     SilicaFlickable
     {
         anchors.fill: parent
@@ -37,6 +29,16 @@ Page
                 text: "Settings"
                 onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
             }
+            MenuItem
+            {
+                text: "New paste from clipboard"
+                onClicked: pastes.newPaste("Pasted from Jolla", Clipboard.text, "text", "1H", "0")
+            }
+            MenuItem
+            {
+                text: "New paste..."
+                onClicked: pastes.newPaste("testi", "Testidataa-tekstiä", "text", "1H", "0")
+            }
         }
 
         SilicaListView
@@ -52,10 +54,32 @@ Page
             delegate: ListItem
             {
                 id: listItem
+                menu: ContextMenu
+                {
+                    MenuItem
+                    {
+                        text: "Copy URL to clipboard"
+                        onClicked: Clipboard.text = "http://pastebin.com/" + paste_key
+                    }
+                    MenuItem
+                    {
+                        text: "Open in browser"
+                        onClicked: Qt.openUrlExternally("http://pastebin.com/" + paste_key)
+                    }
+                    MenuItem
+                    {
+                        text: "Delete (no remorse, no undo)"
+                        onClicked:
+                        {
+                            dataReady = false
+                            pastes.deletePaste(paste_key)
+                        }
+                    }
+                }
 
                 onClicked:
                 {
-                    console.log("click " + paste_key)
+                    pastes.fetchRaw(paste_key)
                 }
 
                 Row
@@ -68,14 +92,14 @@ Page
                         id: col
                         Label
                         {
-                            text: paste_title.length > 0 ? paste_title : paste_key
+                            text: paste_title.length > 0 ? paste_title : "Untitled"
                             color: listItem.highlighted ? Theme.highlightColor : Theme.primaryColor
                         }
                         Label
                         {
                             text:
                             {
-                                return new Date(paste_date * 1000);
+                                return Qt.formatDateTime(new Date(paste_date * 1000))
                             }
                             font.pixelSize: Theme.fontSizeExtraSmall
                             color: listItem.highlighted ? Theme.highlightColor : Theme.secondaryColor
@@ -84,12 +108,11 @@ Page
                     Image
                     {
                         id: privImg
-                        visible: paste_private > 0
-                        scale: 0.5
+                        visible: paste_private == 2
+                        scale: 0.75
                         source: "image://theme/icon-m-device-lock"
                     }
                 }
-
             }
         }
     }
