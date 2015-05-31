@@ -4,7 +4,7 @@
 #include <QtDBus/QDBusArgument>
 
 consolereader::consolereader(QObject *parent) :
-    QObject(parent)
+    QObject(parent), running(true)
 {
     p = new Pastes();
 
@@ -12,7 +12,7 @@ consolereader::consolereader(QObject *parent) :
     {
         printf("Please login first through GUI\n");
 
-        emit quit();
+        running = false;
         return;
     }
 

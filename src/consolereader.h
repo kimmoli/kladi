@@ -11,6 +11,8 @@ public:
     explicit consolereader(QObject *parent = 0);
     ~consolereader();
 
+    bool running;
+
 signals:
     void quit();
 

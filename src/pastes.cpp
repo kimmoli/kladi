@@ -28,7 +28,7 @@ Pastes::~Pastes()
 
 QVariant Pastes::getSetting(QString name, QVariant defaultValue)
 {
-    QSettings s("harbour-kladi", "harbour-kladi");
+    QSettings s("/home/nemo/.config/harbour-kladi/harbour-kladi.conf", QSettings::NativeFormat);
     s.beginGroup("Settings");
     QVariant settingValue = s.value(name, defaultValue);
     s.endGroup();

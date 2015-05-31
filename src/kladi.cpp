@@ -31,7 +31,8 @@ int main(int argc, char *argv[])
 
             capp->connect(c, SIGNAL(quit()), capp, SLOT(quit()));
 
-            return capp->exec();
+            if (c->running)
+                return capp->exec();
         }
         return 0;
     }
