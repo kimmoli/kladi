@@ -22,17 +22,33 @@ Page
             }
             MenuItem
             {
-                text: "Login"
+                text:
+                {
+                    if (pastes.userKeyOk && userName.length > 0)
+                        return "Logged in as " + userName
+                    return "Login"
+                }
                 onClicked: pageStack.push(Qt.resolvedUrl("LoginPage.qml"))
             }
             MenuItem
             {
+                text: "Refresh"
+                enabled: pastes.userKeyOk
+                onClicked:
+                {
+                    dataReady = false
+                    pastes.fetchAll()
+                }
+            }
+
+            MenuItem
+            {
                 text: "New paste from clipboard"
-                enabled: Clipboard.hasText && pastes.userKeyOk
+                enabled: pastes.userKeyOk
                 onClicked:
                 {
                     processing = true
-                    pastes.newPaste("Pasted from Jolla", Clipboard.text, "text", "1M", "1")
+                    pastes.newPaste("Pasted from Jolla", Clipboard.text, userFormat, userExpire, userPrivacy)
                 }
             }
             MenuItem
@@ -142,6 +158,10 @@ Page
                     }
 
                     processing = true
+
+                    if (paste_size > 50000)
+                        messagebox.showMessage("Opening large paste...")
+
                     currentPasteTitle = paste_title.length > 0 ? paste_title : "Untitled"
                     currentPasteSize = paste_size
                     currentPasteFormat = paste_format_long
@@ -183,10 +203,13 @@ Page
                                 {
                                     if (paste_expire_date == 0)
                                         return ""
-                                    if ((paste_expire_date - new Date()/1000) < 1200)
-                                        return "Expires soon"
-                                    if ((paste_expire_date - new Date()/1000) < 86400)
-                                        return "Expires in 24h"
+                                    var secsToExpire = (paste_expire_date - new Date()/1000)
+                                    if (secsToExpire < 60)
+                                        return "Expires in " + Math.floor(secsToExpire) + " sec"
+                                    if (secsToExpire < 3600)
+                                        return "Expires in " + Math.floor(secsToExpire/60) + " min"
+                                    if (secsToExpire < 86400)
+                                        return "Expires in " + Math.floor(secsToExpire/3600) + " h"
                                     return ""
                                 }
                                 font.pixelSize: Theme.fontSizeExtraSmall

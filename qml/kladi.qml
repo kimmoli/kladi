@@ -20,6 +20,7 @@ ApplicationWindow
     property bool dataReady: false
     property bool processing: false
     property bool openingBrowser: false
+    property bool userInfoFetced: false
 
     property string currentPasteTitle: ""
     property string currentPasteSize: ""
@@ -27,6 +28,11 @@ ApplicationWindow
     property string currentPasteDate: ""
     property string currentPasteExpire: ""
     property string currentPastePrivacy: ""
+
+    property string userName: ""
+    property string userFormat: "text"
+    property string userPrivacy: "1"
+    property string userExpire: "1M"
 
     Pastes
     {
@@ -43,6 +49,20 @@ ApplicationWindow
 
             myPastes.xml = pastes.xml()
             myPastes.reload()
+
+            if (!userInfoFetced)
+            {
+                dataReady = false
+                pastes.fetchUserInfo()
+            }
+        }
+
+        onUserInfoChanged:
+        {
+            console.log("user info changed")
+
+            myInfo.xml = pastes.userInfo()
+            myInfo.reload()
         }
 
         onRawPasteChanged:
@@ -100,13 +120,52 @@ ApplicationWindow
         {
             switch (status)
             {
-                case XmlListModel.Ready:    console.log("[READY]   '" + source + "' | "  + count + " items"); break
-                case XmlListModel.Error:    console.log("[ERROR]   '" + source + "' | Error: ''" + errorString() + "'"); break
-                case XmlListModel.Loading:  console.log("[LOADING] '" + source + "'"); break
+                case XmlListModel.Ready:    console.log("[READY] " + count + " items"); break
+                case XmlListModel.Error:    console.log("[ERROR] Error: ''" + errorString() + "'"); break
+                case XmlListModel.Loading:  console.log("[LOADING]"); break
             }
-
             if (status == XmlListModel.Ready)
                 dataReady = true
+        }
+    }
+
+    XmlListModel
+    {
+        id: myInfo
+
+        query: "/data/user"
+
+        XmlRole { name: "user_name"; query: "user_name/string()" }
+        XmlRole { name: "user_format_short"; query: "user_format_short/string()" }
+        XmlRole { name: "user_expiration"; query: "user_expiration/string()" }
+        XmlRole { name: "user_private"; query: "user_private/string()" }
+
+        onStatusChanged:
+        {
+            switch (status)
+            {
+                case XmlListModel.Ready:    console.log("[READY] " + count + " items"); break
+                case XmlListModel.Error:    console.log("[ERROR] Error: ''" + errorString() + "'"); break
+                case XmlListModel.Loading:  console.log("[LOADING]"); break
+            }
+            if (status == XmlListModel.Ready)
+            {
+                userInfoFetced = true
+                dataReady = true
+                if (myInfo.count>0)
+                {
+                    userName = myInfo.get(0).user_name
+                    userExpire = myInfo.get(0).user_expiration
+                    userFormat = myInfo.get(0).user_format_short
+                    userPrivacy = myInfo.get(0).user_private
+                    if (userPrivacy == "2")
+                    {
+                        userPrivacy = "1"
+                        messagebox.showError("Private pastes not supported<br>Setting to unlisted")
+                    }
+
+                }
+            }
         }
     }
 }

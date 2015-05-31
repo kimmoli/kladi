@@ -17,6 +17,21 @@ Page
         {
             MenuItem
             {
+                text: "Save to file"
+                onClicked:
+                {
+                    var afnd = pageStack.push(Qt.resolvedUrl("AskFilename.qml"), { filename: currentPasteTitle })
+                    afnd.accepted.connect(function()
+                    {
+                        if (pastes.save(afnd.filename, pastes.raw()))
+                            messagebox.showMessage("Saved " + afnd.filename)
+                        else
+                            messagebox.showError("Failed to save")
+                    })
+                }
+            }
+            MenuItem
+            {
                 text: "Copy to clipboard"
                 onClicked: Clipboard.text = area.text
             }

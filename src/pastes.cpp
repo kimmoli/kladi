@@ -3,6 +3,7 @@
 */
 
 #include "pastes.h"
+#include <QtQml>
 
 Pastes::Pastes(QObject *parent) :
     QObject(parent)
@@ -185,6 +186,31 @@ void Pastes::requestUserKey(QString username, QString password)
     connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(errorReply(QNetworkReply::NetworkError)));
 }
 
+void Pastes::fetchUserInfo()
+{
+    QString opt = "userdetails";
+
+    QNetworkRequest req;
+    req.setUrl(QUrl(_apiUrl));
+
+    QString datas("api_option=" + opt +
+                  "&api_dev_key=" + _develKey +
+                  "&api_user_key=" + _userKey);
+
+    QByteArray data = datas.toLocal8Bit();
+
+    req.setRawHeader("Accept", "text/*");
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+    req.setHeader(QNetworkRequest::ContentLengthHeader, QString::number(data.size()));
+
+    _lastRequest = UserInfo;
+
+    QNetworkReply *reply = _manager->post(req, data);
+
+    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(errorReply(QNetworkReply::NetworkError)));
+}
+
+
 /*****************/
 
 void Pastes::finished(QNetworkReply *reply)
@@ -202,9 +228,17 @@ void Pastes::finished(QNetworkReply *reply)
         _message = r;
         emit error();
     }
+    else if (r.startsWith("<user>") && _lastRequest == UserInfo)
+    {
+        qDebug() << "looks like user info";
+        _lastRequest = None;
+
+        _userInfo = QString("<?xml version=\"1.0\" encoding=\"utf-8\"?><data>%1</data>").arg(r);
+        emit userInfoChanged();
+    }
     else if (r.startsWith("<paste>") && _lastRequest == List)
     {
-        qDebug() << "looks like data, list of pastes or nothing";
+        qDebug() << "looks like list of pastes";
         _lastRequest = None;
 
         _pastes = QString("<?xml version=\"1.0\" encoding=\"utf-8\"?><data>%1</data>").arg(r);
@@ -256,12 +290,12 @@ void Pastes::finished(QNetworkReply *reply)
     }
     else if (_lastRequest == Raw)
     {
-        qDebug() << "raw" << r;
+        qDebug() << "raw";
         _lastRequest = None;
 
         if (r.isEmpty())
         {
-            _message = "This paste is empty?";
+            _message = "This paste is empty!<br>Deleted? Expired?";
             emit error();
         }
         else
@@ -275,4 +309,34 @@ void Pastes::finished(QNetworkReply *reply)
 void Pastes::errorReply(QNetworkReply::NetworkError error)
 {
     qCritical() << error << ((QNetworkReply *)sender())->errorString();
+}
+
+/******************************/
+
+bool Pastes::fileExists(QString filename)
+{
+    QString filepath = QString("%1/%2")
+            .arg(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation))
+            .arg(filename);
+
+    QFile test(filepath);
+
+    return test.exists();
+}
+
+bool Pastes::save(QString filename, QString data)
+{
+    QString filepath = QString("%1/%2")
+            .arg(QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation))
+            .arg(filename);
+
+    QFile f(filepath);
+
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+        return false;
+
+    f.write(data.toLocal8Bit());
+    f.close();
+
+    return true;
 }

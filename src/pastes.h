@@ -29,13 +29,19 @@ public:
     Q_INVOKABLE void fetchAll();
     Q_INVOKABLE void deletePaste(QString key);
     Q_INVOKABLE void requestUserKey(QString username, QString password);
+
     Q_INVOKABLE void fetchRaw(QString key);
+    Q_INVOKABLE void fetchUserInfo();
 
     bool userKeyOk() { return (_userKey.length() == 32); }
 
     Q_INVOKABLE QString xml() { return _pastes; }
     Q_INVOKABLE QString raw() { return _rawPaste; }
     Q_INVOKABLE QString msg() { return _message; }
+    Q_INVOKABLE QString userInfo() { return _userInfo; }
+
+    Q_INVOKABLE bool fileExists(QString filename);
+    Q_INVOKABLE bool save(QString filename, QString data);
 
     enum Request
     {
@@ -44,7 +50,7 @@ public:
         List,
         Delete,
         UserKey,
-        Login,
+        UserInfo,
         Raw
     };
 
@@ -54,6 +60,7 @@ signals:
     void rawPasteChanged();
     void success();
     void userKeyOkChanged();
+    void userInfoChanged();
 
 private slots:
     void finished(QNetworkReply *reply);
@@ -70,6 +77,7 @@ private:
     QString _rawPaste;
     QString _message;
     Request _lastRequest;
+    QString _userInfo;
 
 };
 

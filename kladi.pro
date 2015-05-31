@@ -31,5 +31,6 @@ OTHER_FILES += qml/kladi.qml \
     qml/pages/ShowPaste.qml \
     qml/pages/EditPaste.qml \
     qml/pages/PasteInfo.qml \
-    qml/pages/LoginPage.qml
+    qml/pages/LoginPage.qml \
+    qml/pages/AskFilename.qml
 

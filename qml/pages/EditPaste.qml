@@ -8,14 +8,25 @@ Dialog
 
     property string pasteTitle: ""
     property string code: ""
-    property string format: "text"
-    property string expire: "1M"
-    property string privacy: "1"
+    property string format: userFormat
+    property string expire: userExpire
+    property string privacy: userPrivacy
 
     Component.onCompleted:
     {
-        expireCombo.currentIndex = 6
-        privacyCombo.currentIndex = 0
+        switch (expire)
+        {
+            case "N": expireCombo.currentIndex = 0; break;
+            case "10M": expireCombo.currentIndex = 1; break;
+            case "1H": expireCombo.currentIndex = 2; break;
+            case "1D": expireCombo.currentIndex = 3; break;
+            case "1W": expireCombo.currentIndex = 4; break;
+            case "2W": expireCombo.currentIndex = 5; break;
+            case "1M": expireCombo.currentIndex = 6; break;
+            default: expireCombo.currentIndex = 6; break;
+        }
+
+        privacyCombo.currentIndex = Number(privacy)
     }
 
     canAccept: area.text.length > 0
@@ -61,8 +72,8 @@ Dialog
 
                 menu: ContextMenu
                 {
-                    MenuItem { text: "Unlisted"; onClicked: privacy = "1"; }
                     MenuItem { text: "Public";   onClicked: privacy = "0"; }
+                    MenuItem { text: "Unlisted"; onClicked: privacy = "1"; }
                 }
             }
             TextField
