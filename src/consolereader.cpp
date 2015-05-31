@@ -3,8 +3,8 @@
 #include <QtDBus/QtDBus>
 #include <QtDBus/QDBusArgument>
 
-consolereader::consolereader(QObject *parent) :
-    QObject(parent), running(true)
+consolereader::consolereader(QString title, QString expire, QObject *parent) :
+    QObject(parent), running(true), _title(title), _expire(expire)
 {
     p = new Pastes();
 
@@ -28,7 +28,10 @@ consolereader::consolereader(QObject *parent) :
 
     printf("Please wait...\n");
 
-    p->newPaste("Pasted from Jolla", _buffer, "text", "1H", "1");
+    if (!QString("N 10M 1H 1D 1W 2W 1M").contains(_expire))
+        _expire = "1M";
+
+    p->newPaste(_title, _buffer, "text", _expire, "1");
 
 }
 

@@ -30,7 +30,6 @@ Page
             }
             Label
             {
-                x: Theme.paddingLarge
                 text: "Pastebin application"
                 color: Theme.primaryColor
                 font.pixelSize: Theme.fontSizeMedium
@@ -55,7 +54,6 @@ Page
 
             Label
             {
-                x: Theme.paddingLarge
                 text: "(C) 2015 kimmoli"
                 color: Theme.primaryColor
                 font.pixelSize: Theme.fontSizeMedium
@@ -63,7 +61,6 @@ Page
             }
             Label
             {
-                x: Theme.paddingLarge
                 text: "Version: " + Qt.application.version
                 color: Theme.primaryColor
                 font.pixelSize: Theme.fontSizeMedium
@@ -77,13 +74,11 @@ Page
             Label
             {
                 anchors.horizontalCenter: parent.horizontalCenter
-                text: "To paste from commandline<br>login through GUI, and use<br><b>harbour-kladi -</b><br>to get paste input from stdin."
+                text: "To paste from commandline use:<br><b>harbour-kladi - {title} {expire}</b>"
                 textFormat: Text.RichText
                 horizontalAlignment: Text.AlignHCenter
             }
         }
     }
 }
-
-
 

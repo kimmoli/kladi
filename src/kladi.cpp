@@ -20,14 +20,21 @@
 
 int main(int argc, char *argv[])
 {
-    if (argc == 2)
+    if (argc > 1)
     {
         if (QString(argv[1]) == "-")
         {
             QCoreApplication* capp;
             capp = new QCoreApplication(argc, argv);
+            QString title("Pasted from Jolla");
+            QString expire("1M");
 
-            consolereader *c = new consolereader();
+            if (argc > 2)
+                title = QString(argv[2]);
+            if (argc > 3)
+                expire = QString(argv[3]);
+
+            consolereader *c = new consolereader(title, expire);
 
             capp->connect(c, SIGNAL(quit()), capp, SLOT(quit()));
 
@@ -39,7 +46,7 @@ int main(int argc, char *argv[])
 
     printf("Kladi version %s (C) kimmoli 2015\n\n", APPVERSION);
     printf("To use this from console, login through GUI, and start\n");
-    printf("  harbour-kladi -\n");
+    printf("  harbour-kladi - {title} {expire=N,10M,1H,1D,1W,2W,1M}\n");
     printf("to get paste input from stdin.\n\n");
 
     qmlRegisterType<Pastes>("harbour.kladi.Pastes", 1, 0, "Pastes");

@@ -8,7 +8,7 @@ class consolereader : public QObject
 {
     Q_OBJECT
 public:
-    explicit consolereader(QObject *parent = 0);
+    explicit consolereader(QString title = "Pasted from Jolla", QString expire = "1M", QObject *parent = 0);
     ~consolereader();
 
     bool running;
@@ -22,6 +22,8 @@ public slots:
 
 public:
     Pastes *p;
+    QString _title;
+    QString _expire;
     QString _buffer;
 
 };
