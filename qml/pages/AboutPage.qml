@@ -8,10 +8,7 @@ import Sailfish.Silica 1.0
 
 Page
 {
-    property string name
-    property string year
-    property string version
-    property string imagelocation
+    property string imagelocation: "/usr/share/icons/hicolor/86x86/apps/harbour-kladi.png"
 
     id: page
 
@@ -29,12 +26,12 @@ Page
             spacing: Theme.paddingLarge
             PageHeader
             {
-                title: "About " + name
+                title: "About Kladi"
             }
             Label
             {
                 x: Theme.paddingLarge
-                text: name
+                text: "Pastebin application"
                 color: Theme.primaryColor
                 font.pixelSize: Theme.fontSizeMedium
                 font.bold: true
@@ -59,7 +56,7 @@ Page
             Label
             {
                 x: Theme.paddingLarge
-                text: "(C) " + year + " kimmoli"
+                text: "(C) 2015 kimmoli"
                 color: Theme.primaryColor
                 font.pixelSize: Theme.fontSizeMedium
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -67,7 +64,7 @@ Page
             Label
             {
                 x: Theme.paddingLarge
-                text: "Version: " + version
+                text: "Version: " + Qt.application.version
                 color: Theme.primaryColor
                 font.pixelSize: Theme.fontSizeMedium
                 anchors.horizontalCenter: parent.horizontalCenter

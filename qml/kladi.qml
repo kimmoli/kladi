@@ -12,11 +12,14 @@ ApplicationWindow
 {
     id: kladi
 
+    onApplicationActiveChanged: openingBrowser = false
+
     initialPage: Qt.resolvedUrl("pages/FrontPage.qml")
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
 
     property bool dataReady: false
     property bool processing: false
+    property bool openingBrowser: false
 
     property string currentPasteTitle: ""
     property string currentPasteSize: ""
@@ -76,7 +79,7 @@ ApplicationWindow
         id: isBusy
         size: BusyIndicatorSize.Large
         anchors.centerIn: parent
-        running: !dataReady || processing
+        running: !dataReady || processing || openingBrowser
     }
 
     XmlListModel

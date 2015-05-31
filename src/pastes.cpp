@@ -8,8 +8,11 @@ Pastes::Pastes(QObject *parent) :
     QObject(parent)
 {
     _pastes = QString();
-    _apiUrl = "http://pastebin.com/api/api_post.php";
+    _apiUrl = "https://pastebin.com/api/api_post.php";
+    _rawUrl = "http://pastebin.com/raw.php";
+    _loginUrl = "https://pastebin.com/api/api_login.php";
     _userKey = getSetting("userkey", QString()).toString();
+    emit userKeyOkChanged();
     _develKey = DEVELKEY;
     _lastRequest = None;
 
@@ -40,7 +43,10 @@ void Pastes::setSetting(QString name, QVariant value)
     s.endGroup();
 
     if (name == "userkey")
+    {
         _userKey = value.toString();
+        emit userKeyOkChanged();
+    }
 }
 
 void Pastes::newPaste(QString name, QString code, QString format, QString expire, QString priv)
@@ -108,7 +114,7 @@ void Pastes::fetchRaw(QString key)
     if (key.isEmpty())
         return;
 
-    QUrl url("http://pastebin.com/raw.php");
+    QUrl url(_rawUrl);
     QUrlQuery q;
 
     q.addQueryItem("i", key);
@@ -160,7 +166,7 @@ void Pastes::requestUserKey(QString username, QString password)
         return;
 
     QNetworkRequest req;
-    req.setUrl(QUrl("http://pastebin.com/api/api_login.php"));
+    req.setUrl(QUrl(_loginUrl));
 
     QString datas("api_dev_key=" + _develKey +
                   "&api_user_name=" + QUrl::toPercentEncoding(username) +
@@ -186,7 +192,7 @@ void Pastes::finished(QNetworkReply *reply)
     QString r(reply->readAll());
     reply->deleteLater();
 
-    qDebug() << "Got reply. Possible error:" << reply->errorString();
+    qDebug() << "Got reply";
 
     if (r.startsWith("Bad API request"))
     {
@@ -198,19 +204,37 @@ void Pastes::finished(QNetworkReply *reply)
     }
     else if (r.startsWith("<paste>") && _lastRequest == List)
     {
-        qDebug() << "looks like data, list of pastes";
+        qDebug() << "looks like data, list of pastes or nothing";
         _lastRequest = None;
 
         _pastes = QString("<?xml version=\"1.0\" encoding=\"utf-8\"?><data>%1</data>").arg(r);
         emit pastesChanged();
     }
-    else if (r.startsWith("http") && _lastRequest == New)
+    else if (r.startsWith("No pastes") && _lastRequest == List)
     {
-        qDebug() << "this was a URL, so paste success";
+        qDebug() << "No pastes. damnit.";
         _lastRequest = None;
 
-        _message = r;
-        emit success();
+        _pastes = QString("<?xml version=\"1.0\" encoding=\"utf-8\"?><data></data>");
+        emit pastesChanged();
+    }
+    else if (_lastRequest == New)
+    {
+        _lastRequest = None;
+        if (r.startsWith("http"))
+        {
+            qDebug() << "this was a URL, so paste success";
+
+            _message = r;
+            emit success();
+        }
+        else
+        {
+            qDebug() << "Not an URL, raise error";
+
+            _message = r;
+            emit error();
+        }
     }
     else if (r.length() == 32 && _lastRequest == UserKey)
     {

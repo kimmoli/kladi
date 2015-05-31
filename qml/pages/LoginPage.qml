@@ -27,6 +27,7 @@ Page
                 width: parent.width
                 focus: true
                 label: "Username"
+                inputMethodHints: Qt.ImhNoAutoUppercase
                 placeholderText: qsTr("Enter username")
                 EnterKey.iconSource: "image://theme/icon-m-enter-accept"
                 EnterKey.onClicked:
@@ -41,6 +42,8 @@ Page
                 focus: true
                 label: "Password"
                 placeholderText: qsTr("Enter password")
+                inputMethodHints: Qt.ImhSensitiveData | Qt.ImhNoPredictiveText
+                echoMode: TextInput.PasswordEchoOnEdit
                 EnterKey.iconSource: "image://theme/icon-m-enter-accept"
                 EnterKey.onClicked:
                 {

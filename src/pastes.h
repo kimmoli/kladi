@@ -16,6 +16,7 @@
 class Pastes : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool userKeyOk READ userKeyOk NOTIFY userKeyOkChanged)
 
 public:
     explicit Pastes(QObject *parent = 0);
@@ -30,6 +31,8 @@ public:
     Q_INVOKABLE void requestUserKey(QString username, QString password);
     Q_INVOKABLE void fetchRaw(QString key);
 
+    bool userKeyOk() { return (_userKey.length() == 32); }
+
     Q_INVOKABLE QString xml() { return _pastes; }
     Q_INVOKABLE QString raw() { return _rawPaste; }
     Q_INVOKABLE QString msg() { return _message; }
@@ -41,6 +44,7 @@ public:
         List,
         Delete,
         UserKey,
+        Login,
         Raw
     };
 
@@ -49,6 +53,7 @@ signals:
     void error();
     void rawPasteChanged();
     void success();
+    void userKeyOkChanged();
 
 private slots:
     void finished(QNetworkReply *reply);
@@ -57,6 +62,8 @@ private slots:
 private:
     QString _pastes;
     QString _apiUrl;
+    QString _rawUrl;
+    QString _loginUrl;
     QString _userKey;
     QString _develKey;
     QNetworkAccessManager *_manager;

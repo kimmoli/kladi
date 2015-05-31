@@ -18,11 +18,7 @@ Page
             MenuItem
             {
                 text: "About..."
-                onClicked: pageStack.push(Qt.resolvedUrl("AboutPage.qml"),
-                                          { "version": Qt.application.version,
-                                              "year": "2014",
-                                              "name": "Pastebin application",
-                                              "imagelocation": "/usr/share/icons/hicolor/86x86/apps/harbour-kladi.png"} )
+                onClicked: pageStack.push(Qt.resolvedUrl("AboutPage.qml"))
             }
             MenuItem
             {
@@ -32,6 +28,7 @@ Page
             MenuItem
             {
                 text: "New paste from clipboard"
+                enabled: Clipboard.hasText && pastes.userKeyOk
                 onClicked:
                 {
                     processing = true
@@ -41,6 +38,7 @@ Page
             MenuItem
             {
                 text: "New paste..."
+                enabled: pastes.userKeyOk
                 onClicked:
                 {
                     var editDialog = pageStack.push(Qt.resolvedUrl("EditPaste.qml"))
@@ -53,12 +51,26 @@ Page
             }
         }
 
-        Label
+        InteractionHintLabel
         {
             id: noData
             anchors.centerIn: parent
-            text: "No pastes, or not logged in"
-            visible: dataReady && myPastes.count == 0
+            text:
+            {
+                if (!pastes.userKeyOk)
+                    return "You need to login first. Pulldown to login"
+                return "You do not have any pastes. Pulldown to submit new paste"
+            }
+            visible: dataReady && myPastes.count === 0
+            onVisibleChanged: if (visible) pdHint.start(); else pdHint.stop()
+        }
+
+        TouchInteractionHint
+        {
+            id: pdHint
+            direction: TouchInteraction.Down
+            anchors.horizontalCenter: parent.horizontalCenter
+            loops: 3
         }
 
         SilicaListView
@@ -93,7 +105,12 @@ Page
                     MenuItem
                     {
                         text: "Open in browser"
-                        onClicked: Qt.openUrlExternally("http://pastebin.com/" + paste_key)
+
+                        onClicked:
+                        {
+                            openingBrowser = true
+                            Qt.openUrlExternally("http://pastebin.com/" + paste_key)
+                        }
                     }
                     MenuItem
                     {
@@ -107,6 +124,24 @@ Page
 
                 onClicked:
                 {
+                    if (paste_expire_date != 0 && paste_expire_date < new Date()/1000)
+                    {
+                        messagebox.showMessage("This paste has expired, refreshing")
+
+                        dataReady = false
+                        processing = false
+                        pastes.fetchAll()
+                        return
+                    }
+                    if (paste_private == "2")
+                    {
+                        messagebox.showMessage("Opening private paste in browser")
+                        openingBrowser = true
+                        Qt.openUrlExternally("http://pastebin.com/" + paste_key)
+                        return
+                    }
+
+                    processing = true
                     currentPasteTitle = paste_title.length > 0 ? paste_title : "Untitled"
                     currentPasteSize = paste_size
                     currentPasteFormat = paste_format_long
@@ -114,7 +149,6 @@ Page
                     currentPasteExpire = paste_expire_date == 0 ? "Never" : Qt.formatDateTime(new Date(paste_expire_date * 1000))
                     currentPastePrivacy = paste_private
 
-                    processing = true
                     pastes.fetchRaw(paste_key)
                 }
 
@@ -131,14 +165,33 @@ Page
                             text: paste_title.length > 0 ? paste_title : "Untitled"
                             color: listItem.highlighted ? Theme.highlightColor : Theme.primaryColor
                         }
-                        Label
+                        Row
                         {
-                            text:
+                            spacing: Theme.paddingMedium
+                            Label
                             {
-                                return Qt.formatDateTime(new Date(paste_date * 1000))
+                                text:
+                                {
+                                    return Qt.formatDateTime(new Date(paste_date * 1000))
+                                }
+                                font.pixelSize: Theme.fontSizeExtraSmall
+                                color: listItem.highlighted ? Theme.highlightColor : Theme.secondaryColor
                             }
-                            font.pixelSize: Theme.fontSizeExtraSmall
-                            color: listItem.highlighted ? Theme.highlightColor : Theme.secondaryColor
+                            Label
+                            {
+                                text:
+                                {
+                                    if (paste_expire_date == 0)
+                                        return ""
+                                    if ((paste_expire_date - new Date()/1000) < 1200)
+                                        return "Expires soon"
+                                    if ((paste_expire_date - new Date()/1000) < 86400)
+                                        return "Expires in 24h"
+                                    return ""
+                                }
+                                font.pixelSize: Theme.fontSizeExtraSmall
+                                color: listItem.highlighted ? Theme.highlightColor : Theme.primaryColor
+                            }
                         }
                     }
                     Image
