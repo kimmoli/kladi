@@ -4,6 +4,8 @@
 
 TARGET = harbour-kladi
 
+QT += dbus
+
 CONFIG += sailfishapp
 
 DEVELKEY = $$system(cat develkey)
@@ -16,9 +18,11 @@ message($${DEFINES})
 #INCLUDEPATH += src
 
 SOURCES += src/kladi.cpp \
-	src/pastes.cpp
+	src/pastes.cpp \
+    src/consolereader.cpp
 	
-HEADERS += src/pastes.h
+HEADERS += src/pastes.h \
+    src/consolereader.h
 
 OTHER_FILES += qml/kladi.qml \
     qml/cover/CoverPage.qml \

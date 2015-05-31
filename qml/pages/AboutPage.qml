@@ -69,6 +69,18 @@ Page
                 font.pixelSize: Theme.fontSizeMedium
                 anchors.horizontalCenter: parent.horizontalCenter
             }
+            Item
+            {
+                height: 100
+                width: 1
+            }
+            Label
+            {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: "To paste from commandline<br>login through GUI, and use<br><b>harbour-kladi -</b><br>to get paste input from stdin."
+                textFormat: Text.RichText
+                horizontalAlignment: Text.AlignHCenter
+            }
         }
     }
 }

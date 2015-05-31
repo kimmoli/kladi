@@ -40,6 +40,7 @@ ApplicationWindow
 
         Component.onCompleted:
         {
+            pastes.registerToDBus()
             pastes.fetchAll()
         }
 
@@ -86,6 +87,11 @@ ApplicationWindow
             dataReady = false
             processing = false
             pastes.fetchAll()
+        }
+
+        onBusy:
+        {
+            dataReady = false
         }
     }
 

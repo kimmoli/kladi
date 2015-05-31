@@ -12,10 +12,15 @@
 #include <QNetworkReply>
 #include <QUrl>
 #include <QUrlQuery>
+#include <QtDBus/QtDBus>
+
+#define SERVICE_NAME "com.kimmoli.kladi"
 
 class Pastes : public QObject
 {
     Q_OBJECT
+    Q_CLASSINFO("D-Bus Interface", SERVICE_NAME)
+
     Q_PROPERTY(bool userKeyOk READ userKeyOk NOTIFY userKeyOkChanged)
 
 public:
@@ -43,6 +48,9 @@ public:
     Q_INVOKABLE bool fileExists(QString filename);
     Q_INVOKABLE bool save(QString filename, QString data);
 
+    Q_INVOKABLE void registerToDBus();
+
+
     enum Request
     {
         None,
@@ -61,6 +69,7 @@ signals:
     void success();
     void userKeyOkChanged();
     void userInfoChanged();
+    void busy();
 
 private slots:
     void finished(QNetworkReply *reply);

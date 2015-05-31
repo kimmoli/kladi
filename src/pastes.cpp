@@ -57,9 +57,9 @@ void Pastes::newPaste(QString name, QString code, QString format, QString expire
     if (format.isEmpty())
         format = "text";
 
-    qDebug() << name;
-    qDebug() << code;
-    qDebug() << format << expire << priv;
+    // qDebug() << name;
+    // qDebug() << code;
+    // qDebug() << format << expire << priv;
 
     QNetworkRequest req;
     req.setUrl(QUrl(_apiUrl));
@@ -88,6 +88,7 @@ void Pastes::newPaste(QString name, QString code, QString format, QString expire
 
 void Pastes::fetchAll()
 {
+    emit busy();
     QString opt = "list";
 
     QNetworkRequest req;
@@ -218,11 +219,11 @@ void Pastes::finished(QNetworkReply *reply)
     QString r(reply->readAll());
     reply->deleteLater();
 
-    qDebug() << "Got reply";
+    // qDebug() << "Got reply";
 
     if (r.startsWith("Bad API request"))
     {
-        qDebug() << "error";
+        // qDebug() << "error";
         _lastRequest = None;
 
         _message = r;
@@ -230,7 +231,7 @@ void Pastes::finished(QNetworkReply *reply)
     }
     else if (r.startsWith("<user>") && _lastRequest == UserInfo)
     {
-        qDebug() << "looks like user info";
+        // qDebug() << "looks like user info";
         _lastRequest = None;
 
         _userInfo = QString("<?xml version=\"1.0\" encoding=\"utf-8\"?><data>%1</data>").arg(r);
@@ -238,7 +239,7 @@ void Pastes::finished(QNetworkReply *reply)
     }
     else if (r.startsWith("<paste>") && _lastRequest == List)
     {
-        qDebug() << "looks like list of pastes";
+        // qDebug() << "looks like list of pastes";
         _lastRequest = None;
 
         _pastes = QString("<?xml version=\"1.0\" encoding=\"utf-8\"?><data>%1</data>").arg(r);
@@ -246,7 +247,7 @@ void Pastes::finished(QNetworkReply *reply)
     }
     else if (r.startsWith("No pastes") && _lastRequest == List)
     {
-        qDebug() << "No pastes. damnit.";
+        // qDebug() << "No pastes. damnit.";
         _lastRequest = None;
 
         _pastes = QString("<?xml version=\"1.0\" encoding=\"utf-8\"?><data></data>");
@@ -257,14 +258,14 @@ void Pastes::finished(QNetworkReply *reply)
         _lastRequest = None;
         if (r.startsWith("http"))
         {
-            qDebug() << "this was a URL, so paste success";
+            // qDebug() << "this was a URL, so paste success";
 
             _message = r;
             emit success();
         }
         else
         {
-            qDebug() << "Not an URL, raise error";
+            // qDebug() << "Not an URL, raise error";
 
             _message = r;
             emit error();
@@ -272,7 +273,7 @@ void Pastes::finished(QNetworkReply *reply)
     }
     else if (r.length() == 32 && _lastRequest == UserKey)
     {
-        qDebug() << "seems to be a user key";
+        // qDebug() << "seems to be a user key";
         _lastRequest = None;
 
         setSetting("userkey", r);
@@ -282,7 +283,7 @@ void Pastes::finished(QNetworkReply *reply)
     }
     else if (r.startsWith("Paste Removed") && _lastRequest == Delete)
     {
-        qDebug() << "deleted";
+        // qDebug() << "deleted";
         _lastRequest = None;
 
         _message = "Deleted succesfully";
@@ -290,7 +291,7 @@ void Pastes::finished(QNetworkReply *reply)
     }
     else if (_lastRequest == Raw)
     {
-        qDebug() << "raw";
+        // qDebug() << "raw";
         _lastRequest = None;
 
         if (r.isEmpty())
@@ -339,4 +340,10 @@ bool Pastes::save(QString filename, QString data)
     f.close();
 
     return true;
+}
+
+void Pastes::registerToDBus()
+{
+     QDBusConnection::sessionBus().registerService(SERVICE_NAME);
+     QDBusConnection::sessionBus().registerObject("/", this, QDBusConnection::ExportAllInvokables);
 }
