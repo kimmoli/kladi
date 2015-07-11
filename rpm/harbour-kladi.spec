@@ -14,7 +14,7 @@ Release:    1
 Group:      Qt/Qt
 License:    LICENSE
 URL:        http://example.org/
-Source:    %{name}-%{version}.tar.bz2
+Source0:    %{name}-%{version}.tar.bz2
 Requires:   sailfishsilica-qt5 >= 0.10.9
 Requires:   qt5-qtdeclarative-import-xmllistmodel
 BuildRequires:  pkgconfig(Qt5Quick)
